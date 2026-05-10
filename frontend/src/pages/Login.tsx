@@ -1,9 +1,46 @@
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useNavigate } from 'react-router-dom'
+
+const schema = z.object({
+    email: z.email('Invalid email'),
+    password: z.string().min(6, 'Min 6 characters'),
+})
+
+type FormData = z.infer<typeof schema>
+
+
 function Login() {
+    const navigate = useNavigate()
+    
+    const { register, handleSubmit, formState: {errors} } = useForm<FormData>({
+        resolver: zodResolver(schema)
+    })
+
+    const onSubmit = (data: FormData) => {
+        console.log(data)
+        navigate('/todos')
+    }
+
     return (
-        <div>
-            <h1>Login page</h1>
-            <a href="/">Back to Home</a>
+        <div className="min-h-screen flex items-center justify-center">
+            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 w-80">
+                <h1 className="text-2xl font-medium">Login</h1>
+                <input {...register('email')} placeholder="Email"
+                    className="border rounded-lg p-2 text-sm" />
+                {errors.email && <p className="text-red-500 text-xs">{errors.email.message}</p>}
+                <input {...register('password')} type="password" placeholder="Password"
+                    className="border rounded-lg p-2 text-sm" />
+                {errors.password && <p className="text-red-500 text-xs">{errors.password.message}</p>}
+                <button type="submit" className="bg-green-600 text-white rounded-lg p-2 text-sm">
+                    Login
+                </button>
+            </form>
+
         </div>
+        
+
     )
 }
 
