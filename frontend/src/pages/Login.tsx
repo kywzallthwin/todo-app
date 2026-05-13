@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 
 const schema = z.object({
     email: z.email('Invalid email'),
@@ -18,8 +18,15 @@ function Login() {
         resolver: zodResolver(schema)
     })
 
-    const onSubmit = (data: FormData) => {
-        console.log(data)
+    const onSubmit = async (data: FormData) => {
+        const res = await fetch('http://localhost:3000/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        const json = await res.json()
+        if (!res.ok) return alert(json.error)
+        localStorage.setItem('token', json.token)
         navigate('/todos')
     }
 
@@ -36,6 +43,11 @@ function Login() {
                 <button type="submit" className="bg-green-600 text-white rounded-lg p-2 text-sm">
                     Login
                 </button>
+
+                <p className="text-xs text-center text-gray-500">
+                    Don't have an account?{' '}
+                    <Link to="/register" className="text-green-600">Register</Link>
+                </p>
             </form>
 
         </div>
